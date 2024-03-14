@@ -131,6 +131,26 @@ def show_all_notes(args, book):
     return record.notes if record else "Contact not found."
 
 
+@input_error
+def add_tag_to_note(args, book):
+    name, note_id, *tags = args
+    record = book.find(name)
+    if record:
+        return record.add_tag_to_note_by_id(note_id, tags)
+    else:
+        return "Contact not found."
+
+
+@input_error
+def delete_tag_from_note(args, book):
+    name, note_id, tag = args
+    record = book.find(name)
+    if record:
+        return record.remove_tag_from_note_by_id(note_id, tag)
+    else:
+        return "Contact not found."
+
+
 def birthdays(book):
     return book.get_birthdays_per_week()
 
@@ -177,6 +197,10 @@ def main():
             print(find_note_by_content(args, book))
         elif command == "show-all-notes":
             print(show_all_notes(args, book))
+        elif command == "add-tag":
+            print(add_tag_to_note(args, book))
+        elif command == "delete-tag":
+            print(delete_tag_from_note(args, book))
         else:
             print("Invalid command.")
 

@@ -89,6 +89,12 @@ class Record:
     def find_note_by_content(self, search_content):
         return self.notes.search(search_content)
 
+    def add_tag_to_note_by_id(self, note_id, tag):
+        return self.notes.add_tag_to_note(note_id, tag)
+
+    def remove_tag_from_note_by_id(self, note_id, tag):
+        return self.notes.remove_tag_from_note(note_id, tag)
+
     def __str__(self):
         return f"Contact name: {self.name.value}, phones: {'; '.join(str(p) for p in self.phones)}"
 
@@ -107,22 +113,32 @@ class AddressBook(UserDict):
         return get_birthdays_per_week(dict(self.data))
 
 
+# Notes
 class Note:
     note_id = 0
 
     def __init__(self, content):
         self.content = " ".join(content)
         self.id = Note.note_id
+        self.tags = []
         Note.note_id += 1
 
     def edit(self, new_content):
         self.content = " ".join(new_content)
 
+    def add_tag(self, tags):
+        self.tags.extend(tags)
+
+    def remove_tag(self, tag):
+        self.tags = [t for t in self.tags if t != tag]
+
     def __str__(self):
-        return f"[{self.id}]: {self.content}"
+        tags_str = ", ".join(self.tags)
+        return f"[{self.id}]: {self.content} \n\n Tags: {tags_str}"
 
     def __repr__(self):
-        return f"[{self.id}]: {self.content}"
+        tags_str = ", ".join(self.tags)
+        return f"[{self.id}]: {self.content} \n\n Tags: {tags_str}"
 
     def __dict__(self):
         return {"id": self.id, "content": self.content}
@@ -132,6 +148,7 @@ class NoteBook:
     def __init__(self):
         self.notes = []
 
+    # Notes
     def create_note(self, content):
         new_note = Note(content)
         self.notes.append(new_note)
@@ -169,6 +186,22 @@ class NoteBook:
             else "No notes found."
         )
 
+    # Tags
+    def add_tag_to_note(self, note_id, tag):
+        note = self.find_note_by_id(note_id)
+        if note:
+            note.add_tag(tag)
+            return "Tag added."
+        return "Note not found."
+
+    def remove_tag_from_note(self, note_id, tag):
+        note = self.find_note_by_id(note_id)
+        if note:
+            note.remove_tag(tag)
+            return "Tag removed."
+        return "Note not found."
+
+    # Dumping to JSON
     def to_json(self):
         return {"notes": [note.__dict__() for note in self.notes]}
 
