@@ -151,6 +151,15 @@ def delete_tag_from_note(args, book):
         return "Contact not found."
 
 
+def find_notes_by_tags(args, book):
+    name, *tags = args
+    record = book.find(name)
+    if record:
+        return record.find_notes_by_tags(tags)
+    else:
+        return "Contact not found."
+
+
 def birthdays(book):
     return book.get_birthdays_per_week()
 
@@ -201,6 +210,8 @@ def main():
             print(add_tag_to_note(args, book))
         elif command == "delete-tag":
             print(delete_tag_from_note(args, book))
+        elif command == "find-note-by-tags":
+            print(find_notes_by_tags(args, book))
         else:
             print("Invalid command.")
 

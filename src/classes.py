@@ -95,6 +95,9 @@ class Record:
     def remove_tag_from_note_by_id(self, note_id, tag):
         return self.notes.remove_tag_from_note(note_id, tag)
 
+    def find_notes_by_tags(self, tags):
+        return self.notes.find_note_by_tags(tags)
+
     def __str__(self):
         return f"Contact name: {self.name.value}, phones: {'; '.join(str(p) for p in self.phones)}"
 
@@ -200,6 +203,14 @@ class NoteBook:
             note.remove_tag(tag)
             return "Tag removed."
         return "Note not found."
+
+    def find_note_by_tags(self, tags):
+        found_notes = [note for note in self.notes if set(tags).issubset(note.tags)]
+        return (
+            "\n".join(str(note) for note in found_notes)
+            if found_notes
+            else "No notes found."
+        )
 
     # Dumping to JSON
     def to_json(self):
