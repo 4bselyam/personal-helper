@@ -1,5 +1,6 @@
-from collections import UserDict
 import re
+import json
+from collections import UserDict
 from datetime import datetime
 from utils import get_birthdays_per_week
 
@@ -121,7 +122,7 @@ class Note:
     note_id = 0
 
     def __init__(self, content):
-        self.content = " ".join(content)
+        self.content = " ".join(content) if type(content) == list else content
         self.id = Note.note_id
         self.tags = []
         Note.note_id += 1
@@ -214,7 +215,17 @@ class NoteBook:
 
     # Dumping to JSON
     def to_json(self):
-        return {"notes": [note.__dict__() for note in self.notes]}
+        return json.dumps({"notes": [note.__dict__() for note in self.notes]})
+
+    # Reading from JSON
+    def from_json(self, path):
+        with open(path, "r") as file:
+            data = json.load(file)
+
+            for record in data.get("records"):
+                for note_data in record.get("notes"):
+                    new_note = self.create_note(note_data.get("content"))
+                    self.add_tag_to_note(new_note.id, note_data.get("tags"))
 
     def __str__(self):
         return "\n".join(str(note) for note in self.notes)
