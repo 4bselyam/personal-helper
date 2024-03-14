@@ -122,7 +122,7 @@ class Note:
     note_id = 0
 
     def __init__(self, content):
-        self.content = " ".join(content)
+        self.content = " ".join(content) if type(content) == list else content
         self.id = Note.note_id
         self.tags = []
         Note.note_id += 1
@@ -221,10 +221,11 @@ class NoteBook:
     def from_json(self, path):
         with open(path, "r") as file:
             data = json.load(file)
-            self.notes = [Note(note["content"]) for note in data["notes"]]
-            for i, note in enumerate(self.notes):
-                note.id = data["notes"][i]["id"]
-                note.tags = data["notes"][i]["tags"]
+
+            for record in data.get("records"):
+                for note_data in record.get("notes"):
+                    new_note = self.create_note(note_data.get("content"))
+                    self.add_tag_to_note(new_note.id, note_data.get("tags"))
 
     def __str__(self):
         return "\n".join(str(note) for note in self.notes)
