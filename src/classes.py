@@ -1,5 +1,6 @@
-from collections import UserDict
 import re
+import json
+from collections import UserDict
 from datetime import datetime
 from utils import get_birthdays_per_week
 
@@ -214,7 +215,16 @@ class NoteBook:
 
     # Dumping to JSON
     def to_json(self):
-        return {"notes": [note.__dict__() for note in self.notes]}
+        return json.dumps({"notes": [note.__dict__() for note in self.notes]})
+
+    # Reading from JSON
+    def from_json(self, path):
+        with open(path, "r") as file:
+            data = json.load(file)
+            self.notes = [Note(note["content"]) for note in data["notes"]]
+            for i, note in enumerate(self.notes):
+                note.id = data["notes"][i]["id"]
+                note.tags = data["notes"][i]["tags"]
 
     def __str__(self):
         return "\n".join(str(note) for note in self.notes)
