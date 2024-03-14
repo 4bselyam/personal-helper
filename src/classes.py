@@ -124,6 +124,9 @@ class Note:
     def __repr__(self):
         return f"[{self.id}]: {self.content}"
 
+    def __dict__(self):
+        return {"id": self.id, "content": self.content}
+
 
 class NoteBook:
     def __init__(self):
@@ -165,6 +168,9 @@ class NoteBook:
             if found_notes
             else "No notes found."
         )
+
+    def to_json(self):
+        return {"notes": [note.__dict__() for note in self.notes]}
 
     def __str__(self):
         return "\n".join(str(note) for note in self.notes)
