@@ -2,7 +2,7 @@ import re
 import json
 from collections import UserDict
 from datetime import datetime
-from utils import get_birthdays_per_week
+from utils import get_birthdays_for_n_days
 import os
 
 
@@ -135,7 +135,7 @@ class Record:
         return str(self.email.value) if self.email else "Email not found."
 
     def find_email(self, email):
-        for e in self.emails:
+        for e in self.email:
             if e.value == email:
                 return e.value
         return None
@@ -164,7 +164,7 @@ class Record:
 
     def __str__(self):
         phones_str = "; ".join([str(phone.value) for phone in self.phones])
-        email_str = ", ".join([str(email.value) for email in self.emails])
+        email_str = ", ".join([str(email.value) for email in self.email])
         birthday_str = (
             f", Birthday: {self.birthday.value}"
             if hasattr(self, "birthday") and self.birthday and self.birthday.value
@@ -185,7 +185,7 @@ class AddressBook(UserDict):
         del self.data[name]
 
     def get_birthdays_per_week(self):
-        return get_birthdays_per_week(dict(self.data))
+        return get_birthdays_for_n_days(dict(self.data), 7)
 
 
     def find_by_email(self, email):

@@ -332,6 +332,5 @@ def main():
         print("Good bye!")
         book.to_json(os.getcwd() + "/src/book.json")
 
-
 if __name__ == "__main__":
     main()
