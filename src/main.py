@@ -263,7 +263,6 @@ def main():
     readline.set_completer_delims(' \t\n;')
     readline.set_completer(completer.complete)
     readline.parse_and_bind('tab: complete')
-    readline.set_completion_display_matches_hook(completer.display_matches)
 
     book = AddressBook()
     print("Welcome to the assistant bot!")
