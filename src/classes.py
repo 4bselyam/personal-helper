@@ -161,6 +161,7 @@ class Record:
     def find_notes_by_tags(self, tags):
         return self.notes.find_note_by_tags(tags)
 
+
     def __str__(self):
         phones_str = "; ".join([str(phone.value) for phone in self.phones])
         email_str = ", ".join([str(email.value) for email in self.emails])
@@ -185,6 +186,7 @@ class AddressBook(UserDict):
 
     def get_birthdays_per_week(self):
         return get_birthdays_per_week(dict(self.data))
+
 
     def find_by_email(self, email):
         for record in self.data.values():

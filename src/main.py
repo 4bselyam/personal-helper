@@ -1,4 +1,8 @@
-from classes import AddressBook, Record, Address
+
+from datetime import datetime, timedelta
+from classes import AddressBook, Record, Address, Email
+from cli import Autocompleter
+import readline
 import os
 
 
@@ -247,6 +251,20 @@ def show_all(book):
 
 
 def main():
+    commands = [
+        "hello", "add", "change", "phone", "find-phone", "all", "add-address",
+        "edit-address", "show-address", "add-email", "edit-email", "show-email", "find-email",
+        "add-birthday", "show-birthday", "birthdays", "add-note", "edit-note", "delete-note",
+        "find-note", "show-all-notes", "add-tag", "delete-tag", "find-note-by-tags", "close",
+        "exit"
+    ]
+
+    completer = Autocompleter(commands)
+    readline.set_completer_delims(' \t\n;')
+    readline.set_completer(completer.complete)
+    readline.parse_and_bind('tab: complete')
+    readline.set_completion_display_matches_hook(completer.display_matches)
+
     book = AddressBook()
     print("Welcome to the assistant bot!")
     book.from_json(os.getcwd() + "/src/book.json")
