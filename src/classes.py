@@ -35,16 +35,6 @@ class Phone(Field):
     def __repr__(self):
         return self.value
 
-class Email(Field):
-    def __init__(self, value):
-        if not self.validate_email(value):
-            raise ValueError("Invalid email format.")
-        super().__init__(value)
-
-    def validate_email(self, email):
-        # Регулярний вираз для перевірки формату e-mail
-        pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
-        return re.match(pattern, email)
 
 class Email(Field):
     def __init__(self, value):
@@ -111,39 +101,6 @@ class Record:
             if str(p) == str(phone):
                 return p
         return None
-    
-    
-    def add_address(self, address):
-        address_obj = Address(address)
-        self.address =address_obj
-
-    def edit_address(self, new_address):
-        self.address = Address(new_address)
-        return "Address updated."
-
-    def show_address(self):
-        return str(self.address) if self.address else "Address not found."
-           
-    def add_email(self, email):
-        email_obj = Email(email)
-        self.email = email_obj
-
-    
-    def edit_email(self, new_email):
-        if new_email:
-            self.email = Email(new_email)
-            return "Email updated."
-        else:
-            return "Invalid email."
-    
-    def show_email(self):
-        return str(self.email.value) if self.email else "Email not found."
-
-    def find_email(self, email):
-        for e in self.emails:
-            if e.value == email:
-                return e.value
-        return None
 
     def add_address(self, address):
         address_obj = Address(address)
@@ -197,10 +154,8 @@ class Record:
     def find_notes_by_tags(self, tags):
         return self.notes.find_note_by_tags(tags)
 
-    #def __str__(self):
-        #return f"Contact name: {self.name.value}, phones: {'; '.join(str(p) for p in self.phones)}"
-    def __str__(self):
 
+    def __str__(self):
         phones_str = "; ".join([str(phone.value) for phone in self.phones])
         email_str = ", ".join([str(email.value) for email in self.emails])
         birthday_str = (
@@ -224,12 +179,6 @@ class AddressBook(UserDict):
 
     def get_birthdays_per_week(self):
         return get_birthdays_per_week(dict(self.data))
-    
-    def find_by_email(self, email):
-        for record in self.data.values():
-            if record.email and record.email.value == email:
-                return record
-        return None
 
 
     def find_by_email(self, email):
@@ -358,4 +307,3 @@ class NoteBook:
 
     def __str__(self):
         return "\n".join(str(note) for note in self.notes)
-
