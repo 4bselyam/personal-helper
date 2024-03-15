@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta
 from classes import AddressBook, Record, Address, Email
+from cli import Autocompleter
+import readline
 
 
 def input_error(func):
@@ -89,7 +91,7 @@ def show_birthday(args, book):
         else "Contact and birthday not found."
     )
 
-    
+
 @input_error
 def add_address(args, book):
     name, *address = args
@@ -101,11 +103,13 @@ def add_address(args, book):
     else:
         return "Contact not found."
 
+
 @input_error
 def show_address(args, book):
     name = args[0]
     record = book.find(name)
     return str(record.address) if record and record.address else "Address not found."
+
 
 @input_error
 def change_address(book, name, new_address):
@@ -116,6 +120,7 @@ def change_address(book, name, new_address):
     else:
         return "Contact not found."
 
+
 @input_error
 def add_email(args, book):
     name, email = args
@@ -125,6 +130,7 @@ def add_email(args, book):
         return "Email added."
     else:
         return "Contact not found."
+
 
 @input_error
 def change_email(args, book):
@@ -146,11 +152,13 @@ def show_email(args, book):
     else:
         return "Contact not found."
 
+
 @input_error
 def find_contact_by_email(args, book):
     email = args[0]
     record = book.find_by_email(email)
     return record.name if record else "Contact not found."
+
 
 @input_error
 def add_note(args, book):
@@ -240,6 +248,20 @@ def show_all(book):
 
 
 def main():
+    commands = [
+        "hello", "add", "change", "phone", "find-phone", "all", "add-address",
+        "edit-address", "show-address", "add-email", "edit-email", "show-email", "find-email",
+        "add-birthday", "show-birthday", "birthdays", "add-note", "edit-note", "delete-note",
+        "find-note", "show-all-notes", "add-tag", "delete-tag", "find-note-by-tags", "close",
+        "exit"
+    ]
+
+    completer = Autocompleter(commands)
+    readline.set_completer_delims(' \t\n;')
+    readline.set_completer(completer.complete)
+    readline.parse_and_bind('tab: complete')
+    readline.set_completion_display_matches_hook(completer.display_matches)
+
     book = AddressBook()
     print("Welcome to the assistant bot!")
     while True:
@@ -266,7 +288,7 @@ def main():
         elif command == "edit-address" and len(args) == 2:
             print(change_address(book, *args))
         elif command == "show-address" and len(args) == 1:
-            print(show_address(args, book))  
+            print(show_address(args, book))
         elif command == "add-email" and len(args) == 2:
             print(add_email(args, book))
         elif command == "edit-email" and len(args) == 2:
