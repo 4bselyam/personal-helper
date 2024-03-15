@@ -39,6 +39,7 @@ def parse_input(user_input):
 @input_error
 def add_contact(args, book):
     name, phone = args
+    print(name, phone)
     record = Record(name)
     record.add_phone(phone)
     book.add_record(record)
@@ -97,7 +98,7 @@ def add_address(args, book):
     name, *address = args
     record = book.find(name)
     if record:
-        address_str = ' '.join(address)
+        address_str = " ".join(address)
         record.add_address(Address(address_str))
         return "Address added."
     else:
@@ -242,8 +243,9 @@ def birthdays(book):
 
 
 def show_all(book):
-    return "\n".join(
-        f"{record.name}: {record.phones}" for name, record in book.data.items()
+    return "\n\n".join(
+        f"Name: {record.name}\nPhones: {record.phones}\nEmails: {record.email}\nAddress: {record.address}\nBirthday: {record.birthday}\nNotes: {record.notes}\n"
+        for name, record in book.data.items()
     )
 
 
@@ -266,7 +268,7 @@ def main():
     print("Welcome to the assistant bot!")
     while True:
         user_input = input("Enter a command: ")
-        command, *args = parse_input(user_input)
+        command, args = parse_input(user_input)
 
         if command in ["close", "exit"]:
             print("Good bye!")
@@ -289,7 +291,7 @@ def main():
             print(change_address(book, *args))
         elif command == "show-address" and len(args) == 1:
             print(show_address(args, book))
-        elif command == "add-email" and len(args) == 2:
+        elif command == "add-email":
             print(add_email(args, book))
         elif command == "edit-email" and len(args) == 2:
             print(change_email(args, book))
