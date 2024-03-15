@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from classes import AddressBook, Record
+from classes import AddressBook, Record, Address, Email
 
 
 def input_error(func):
@@ -31,12 +31,13 @@ def input_error_birthday(func):
 def parse_input(user_input):
     cmd, *args = user_input.split()
     cmd = cmd.strip().lower()
-    return cmd, *args
+    return cmd, args
 
 
 @input_error
 def add_contact(args, book):
     name, phone = args
+    print(name, phone)
     record = Record(name)
     record.add_phone(phone)
     book.add_record(record)
@@ -61,6 +62,13 @@ def show_phone(args, book):
     return record.phones[0] if record else "Contact not found."
 
 
+@input_error
+def find_contact_by_phone(args, book):
+    phone = args[0]
+    record = book.find_by_phone(phone)
+    return record.name if record else "Contact not found."
+
+
 @input_error_birthday
 def add_birthday(args, book):
     name, birthday = args
@@ -81,6 +89,74 @@ def show_birthday(args, book):
         if record and record.birthday
         else "Contact and birthday not found."
     )
+
+
+@input_error
+def add_address(args, book):
+    name, *address = args
+    record = book.find(name)
+    if record:
+        address_str = " ".join(address)
+        record.add_address(Address(address_str))
+        return "Address added."
+    else:
+        return "Contact not found."
+
+
+@input_error
+def show_address(args, book):
+    name = args[0]
+    record = book.find(name)
+    return str(record.address) if record and record.address else "Address not found."
+
+
+@input_error
+def change_address(book, name, new_address):
+    record = book.find(name)
+    if record:
+        record.edit_address(new_address)
+        return "Address updated."
+    else:
+        return "Contact not found."
+
+
+@input_error
+def add_email(args, book):
+    name, email = args
+    record = book.find(name)
+    if record:
+        record.add_email(email)
+        return "Email added."
+    else:
+        return "Contact not found."
+
+
+@input_error
+def change_email(args, book):
+    name, new_email = args
+    record = book.find(name)
+    if record:
+        record.edit_email(new_email)
+        return "Email updated."
+    else:
+        return "Contact not found."
+
+
+@input_error
+def show_email(args, book):
+    name = args[0]
+    record = book.find(name)
+    if record:
+        return str(record.email.value) if record.email else "Email not found."
+    else:
+        return "Contact not found."
+
+
+@input_error
+def find_contact_by_email(args, book):
+    email = args[0]
+    record = book.find_by_email(email)
+    return record.name if record else "Contact not found."
 
 
 @input_error
@@ -165,8 +241,9 @@ def birthdays(book):
 
 
 def show_all(book):
-    return "\n".join(
-        f"{record.name}: {record.phones}" for name, record in book.data.items()
+    return "\n\n".join(
+        f"Name: {record.name}\nPhones: {record.phones}\nEmails: {record.email}\nAddress: {record.address}\nBirthday: {record.birthday}\nNotes: {record.notes}\n"
+        for name, record in book.data.items()
     )
 
 
@@ -175,7 +252,7 @@ def main():
     print("Welcome to the assistant bot!")
     while True:
         user_input = input("Enter a command: ")
-        command, *args = parse_input(user_input)
+        command, args = parse_input(user_input)
 
         if command in ["close", "exit"]:
             print("Good bye!")
@@ -188,8 +265,24 @@ def main():
             print(change_contact(args, book))
         elif command == "phone":
             print(show_phone(args, book))
+        elif command == "find-phone" and len(args) == 1:
+            print(find_contact_by_phone(args, book))
         elif command == "all":
             print(show_all(book))
+        elif command == "add-address":
+            print(add_address(args, book))
+        elif command == "edit-address" and len(args) == 2:
+            print(change_address(book, *args))
+        elif command == "show-address" and len(args) == 1:
+            print(show_address(args, book))
+        elif command == "add-email":
+            print(add_email(args, book))
+        elif command == "edit-email" and len(args) == 2:
+            print(change_email(args, book))
+        elif command == "show-email" and len(args) == 1:
+            print(show_email(args, book))
+        elif command == "find-email" and len(args) == 1:
+            print(find_contact_by_email(args, book))
         elif command == "add-birthday":
             print(add_birthday(args, book))
         elif command == "show-birthday":
