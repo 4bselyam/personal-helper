@@ -3,6 +3,7 @@ import json
 from collections import UserDict
 from datetime import datetime
 from utils import get_birthdays_per_week
+import os
 
 
 class Field:
@@ -38,27 +39,32 @@ class Phone(Field):
 
 class Email(Field):
     def __init__(self, value):
-        if not self.validate_email(value):
-            raise ValueError("Invalid email format.")
-        super().__init__(value)
+        self.value = None
+
+        if value is not None:
+            self.value = self.validate_email(value)
 
     def validate_email(self, email):
-        # Регулярний вираз для перевірки формату e-mail
         pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
-        return re.match(pattern, email)
+
+        if re.match(pattern, email):
+            return email
+        else:
+            raise ValueError("Invalid email")
 
 
-class Birthday:
-    def __init__(self, birthday=None):
-        self.birthday = None
+class Birthday(Field):
+    def __init__(self, birthday):
+        self.value = None
+
         if birthday is not None:
-            self.birthday = self.validate_birthday(birthday)
+            self.value = self.validate_birthday(birthday)
 
     def validate_birthday(self, birthday):
-        if re.match(r"\d{2}.\d{2}.\d{4}", birthday):
-            return datetime.strptime(birthday, "%d.%m.%Y")
-        else:
+        if not re.match(r"\d{2}.\d{2}.\d{4}", birthday):
             raise ValueError("Birthday must be in DD.MM.YYYY format")
+
+        return datetime.strptime(birthday, "%d.%m.%Y").strftime("%d.%m.%Y")
 
 
 class Address:
@@ -81,11 +87,12 @@ class Record:
             self.add_email(email)
 
     def add_birthday(self, birthday):
-        self.birthday = Birthday(birthday)
+        if birthday:
+            self.birthday = Birthday(birthday)
 
     def add_phone(self, phone):
-        new_phone = Phone(phone)
-        self.phones.append(new_phone)
+        if phone:
+            self.phones.append(Phone(phone))
 
     def remove_phone(self, phone):
         self.phones = [p for p in self.phones if str(p) != str(phone)]
@@ -103,8 +110,8 @@ class Record:
         return None
 
     def add_address(self, address):
-        address_obj = Address(address)
-        self.address = address_obj
+        if address:
+            self.address = Address(address)
 
     def edit_address(self, new_address):
         self.address = Address(new_address)
@@ -114,8 +121,8 @@ class Record:
         return str(self.address) if self.address else "Address not found."
 
     def add_email(self, email):
-        email_obj = Email(email)
-        self.email = email_obj
+        if email:
+            self.email = Email(email)
 
     def edit_email(self, new_email):
         if new_email:
@@ -192,6 +199,55 @@ class AddressBook(UserDict):
                     return record
         return None
 
+    def to_json(self, path):
+        dumped_json = json.dumps(
+            {
+                "records": [
+                    {
+                        "name": record.name.value,
+                        "phones": [str(phone) for phone in record.phones],
+                        "email": record.email.value if record.email else None,
+                        "address": str(record.address) if record.address else None,
+                        "birthday": (
+                            str(record.birthday.value) if record.birthday else None
+                        ),
+                        "notes": [note.__dict__() for note in record.notes.notes],
+                    }
+                    for record in self.data.values()
+                ]
+            }
+        )
+
+        with open(path, "w") as file:
+            file.write(dumped_json)
+
+    def from_json(self, path):
+        if not os.path.exists(path):
+            return None
+
+        with open(path, "r+") as file:
+            data = json.load(file)
+
+            for record in data.get("records"):
+                new_record = Record(record.get("name"))
+
+                for phone in record.get("phones"):
+                    new_record.add_phone(phone)
+
+                new_record.add_email(record.get("email"))
+                new_record.add_address(record.get("address"))
+                new_record.add_birthday(
+                    record.get("birthday") if record.get("birthday") else None
+                )
+                new_record.notes = NoteBook()
+                for note_data in record.get("notes"):
+                    new_note = new_record.add_note(note_data.get("content"))
+                    new_record.add_tag_to_note_by_id(
+                        new_note.id, note_data.get("tags", [])
+                    )
+
+                self.add_record(new_record)
+
 
 # Notes
 class Note:
@@ -214,11 +270,11 @@ class Note:
 
     def __str__(self):
         tags_str = ", ".join(self.tags)
-        return f"[{self.id}]: {self.content} \n\n Tags: {tags_str}"
+        return f"[{self.id}]: {self.content}\n\nTags: {tags_str}"
 
     def __repr__(self):
         tags_str = ", ".join(self.tags)
-        return f"[{self.id}]: {self.content} \n\n Tags: {tags_str}"
+        return f"[{self.id}]: {self.content}\n\nTags: {tags_str}"
 
     def __dict__(self):
         return {"id": self.id, "content": self.content}
