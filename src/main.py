@@ -1,5 +1,5 @@
-from datetime import datetime, timedelta
-from classes import AddressBook, Record, Address, Email
+from classes import AddressBook, Record, Address
+import os
 
 
 def input_error(func):
@@ -37,7 +37,6 @@ def parse_input(user_input):
 @input_error
 def add_contact(args, book):
     name, phone = args
-    print(name, phone)
     record = Record(name)
     record.add_phone(phone)
     book.add_record(record)
@@ -250,63 +249,70 @@ def show_all(book):
 def main():
     book = AddressBook()
     print("Welcome to the assistant bot!")
-    while True:
-        user_input = input("Enter a command: ")
-        command, args = parse_input(user_input)
+    book.from_json(os.getcwd() + "/src/book.json")
 
-        if command in ["close", "exit"]:
-            print("Good bye!")
-            break
-        elif command == "hello":
-            print("How can I help you?")
-        elif command == "add":
-            print(add_contact(args, book))
-        elif command == "change":
-            print(change_contact(args, book))
-        elif command == "phone":
-            print(show_phone(args, book))
-        elif command == "find-phone" and len(args) == 1:
-            print(find_contact_by_phone(args, book))
-        elif command == "all":
-            print(show_all(book))
-        elif command == "add-address":
-            print(add_address(args, book))
-        elif command == "edit-address" and len(args) == 2:
-            print(change_address(book, *args))
-        elif command == "show-address" and len(args) == 1:
-            print(show_address(args, book))
-        elif command == "add-email":
-            print(add_email(args, book))
-        elif command == "edit-email" and len(args) == 2:
-            print(change_email(args, book))
-        elif command == "show-email" and len(args) == 1:
-            print(show_email(args, book))
-        elif command == "find-email" and len(args) == 1:
-            print(find_contact_by_email(args, book))
-        elif command == "add-birthday":
-            print(add_birthday(args, book))
-        elif command == "show-birthday":
-            print(show_birthday(args, book))
-        elif command == "birthdays":
-            print(birthdays(book))
-        elif command == "add-note":
-            print(add_note(args, book))
-        elif command == "edit-note":
-            print(edit_note_by_id(args, book))
-        elif command == "delete-note":
-            print(delete_note_by_id(args, book))
-        elif command == "find-note":
-            print(find_note_by_content(args, book))
-        elif command == "show-all-notes":
-            print(show_all_notes(args, book))
-        elif command == "add-tag":
-            print(add_tag_to_note(args, book))
-        elif command == "delete-tag":
-            print(delete_tag_from_note(args, book))
-        elif command == "find-note-by-tags":
-            print(find_notes_by_tags(args, book))
-        else:
-            print("Invalid command.")
+    try:
+        while True:
+            user_input = input("Enter a command: ")
+            command, args = parse_input(user_input)
+
+            if command in ["close", "exit"]:
+                print("Good bye!")
+                book.to_json(os.getcwd() + "/src/book.json")
+                break
+            elif command == "hello":
+                print("How can I help you?")
+            elif command == "add":
+                print(add_contact(args, book))
+            elif command == "change":
+                print(change_contact(args, book))
+            elif command == "phone":
+                print(show_phone(args, book))
+            elif command == "find-phone" and len(args) == 1:
+                print(find_contact_by_phone(args, book))
+            elif command == "all":
+                print(show_all(book))
+            elif command == "add-address":
+                print(add_address(args, book))
+            elif command == "edit-address" and len(args) == 2:
+                print(change_address(book, *args))
+            elif command == "show-address" and len(args) == 1:
+                print(show_address(args, book))
+            elif command == "add-email":
+                print(add_email(args, book))
+            elif command == "edit-email" and len(args) == 2:
+                print(change_email(args, book))
+            elif command == "show-email" and len(args) == 1:
+                print(show_email(args, book))
+            elif command == "find-email" and len(args) == 1:
+                print(find_contact_by_email(args, book))
+            elif command == "add-birthday":
+                print(add_birthday(args, book))
+            elif command == "show-birthday":
+                print(show_birthday(args, book))
+            elif command == "birthdays":
+                print(birthdays(book))
+            elif command == "add-note":
+                print(add_note(args, book))
+            elif command == "edit-note":
+                print(edit_note_by_id(args, book))
+            elif command == "delete-note":
+                print(delete_note_by_id(args, book))
+            elif command == "find-note":
+                print(find_note_by_content(args, book))
+            elif command == "show-all-notes":
+                print(show_all_notes(args, book))
+            elif command == "add-tag":
+                print(add_tag_to_note(args, book))
+            elif command == "delete-tag":
+                print(delete_tag_from_note(args, book))
+            elif command == "find-note-by-tags":
+                print(find_notes_by_tags(args, book))
+            else:
+                print("Invalid command.")
+    except KeyboardInterrupt:
+        print("Good bye!")
+        book.to_json(os.getcwd() + "/src/book.json")
 
 
 if __name__ == "__main__":
