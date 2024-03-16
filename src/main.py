@@ -5,17 +5,26 @@ from cli import Autocompleter
 import readline
 import os
 
+# Color formatting for better user experience
+class Color:
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    END = '\033[0m'
+    RED = '\033[91m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    BLUE = '\033[94m'
 
 def input_error(func):
     def inner(*args, **kwargs):
         try:
             return func(*args, **kwargs)
         except (ValueError, IndexError) as e:
-            print(e)
-            return "Give me name and phone please."
+            print(Color.RED + str(e) + Color.END)
+            return Color.YELLOW + "Usage: command [arguments]\n" + Color.END
         except KeyError as e:
-            print(e)
-            return "Enter user name."
+            print(Color.RED + str(e) + Color.END)
+            return Color.YELLOW + "Enter user name.\n" + Color.END
 
     return inner
 
@@ -25,8 +34,8 @@ def input_error_birthday(func):
         try:
             return func(*args, **kwargs)
         except (ValueError, IndexError) as e:
-            print(e)
-            return "Give correct date please."
+            print(Color.RED + str(e) + Color.END)
+            return Color.YELLOW + "Give correct date please.\n" + Color.END
 
     return inner
 
@@ -38,13 +47,43 @@ def parse_input(user_input):
     return cmd, args
 
 
+def help_commands():
+    return (Color.BOLD + "Available commands:\n" + Color.END +
+            "hello" + " - " + "Display a welcome message.\n" +
+            "add <name> <phone>" + " - " + "Add a new contact with a phone number.\n" +
+            "change <name> <phone>" + " - " + "Change the phone number of an existing contact.\n" +
+            "phone <name>" + " - " + "Show the phone number of a contact.\n" +
+            "find-phone <phone>" + " - " + "Find a contact by phone number.\n" +
+            "all" + " - " + "Show all contacts.\n" +
+            "add-address <name> <address>" + " - " + "Add an address to a contact.\n" +
+            "edit-address <name> <new_address>" + " - " + "Edit the address of a contact.\n" +
+            "show-address <name>" + " - " + "Show the address of a contact.\n" +
+            "add-email <name> <email>" + " - " + "Add an email to a contact.\n" +
+            "edit-email <name> <new_email>" + " - " + "Edit the email of a contact.\n" +
+            "show-email <name>" + " - " + "Show the email of a contact.\n" +
+            "find-email <email>" + " - " + "Find a contact by email.\n" +
+            "add-birthday <name> <birthday>" + " - " + "Add a birthday to a contact.\n" +
+            "show-birthday <name>" + " - " + "Show the birthday of a contact.\n" +
+            "birthdays" + " - " + "Show upcoming birthdays.\n" +
+            "add-note <name> <note>" + " - " + "Add a note to a contact.\n" +
+            "edit-note <name> <note_id> <new_content>" + " - " + "Edit a note of a contact by ID.\n" +
+            "delete-note <name> <note_id>" + " - " + "Delete a note of a contact by ID.\n" +
+            "find-note <name> <search_content>" + " - " + "Find a note of a contact by content.\n" +
+            "show-all-notes <name>" + " - " + "Show all notes of a contact.\n" +
+            "add-tag <name> <note_id> <tags>" + " - " + "Add tags to a note of a contact.\n" +
+            "delete-tag <name> <note_id> <tag>" + " - " + "Delete a tag from a note of a contact.\n" +
+            "find-note-by-tags <name> <tags>" + " - " + "Find notes of a contact by tags.\n" +
+            "close/exit" + " - " + "Close the application.\n" +
+            Color.BOLD + "Note: All commands are case insensitive.\n" + Color.END)
+
+
 @input_error
 def add_contact(args, book):
     name, phone = args
     record = Record(name)
     record.add_phone(phone)
     book.add_record(record)
-    return "Contact added."
+    return Color.GREEN + "Contact added.\n" + Color.END
 
 
 @input_error
@@ -53,23 +92,23 @@ def change_contact(args, book):
     record = book.find(name)
     if record:
         record.edit_phone(record.phones[0], phone)
-        return "Contact updated."
+        return Color.GREEN + "Contact updated.\n" + Color.END
     else:
-        return "Contact not found."
+        return Color.RED + "Contact not found.\n" + Color.END
 
 
 @input_error
 def show_phone(args, book):
     name = args[0]
     record = book.find(name)
-    return record.phones[0] if record else "Contact not found."
+    return record.phones[0] if record else Color.RED + "Contact not found.\n" + Color.END
 
 
 @input_error
 def find_contact_by_phone(args, book):
     phone = args[0]
     record = book.find_by_phone(phone)
-    return record.name if record else "Contact not found."
+    return record.name if record else Color.RED + "Contact not found.\n" + Color.END
 
 
 @input_error_birthday
@@ -78,20 +117,20 @@ def add_birthday(args, book):
     record = book.find(name)
     if record:
         record.add_birthday(birthday)
-        return "Birthday added."
+        return Color.GREEN + "Birthday added.\n" + Color.END
     else:
-        return "Contact not found."
+        return Color.RED + "Contact not found.\n" + Color.END
 
 
 @input_error
 def show_birthday(args, book):
     name = args[0]
     record = book.find(name)
-    return (
-        record.birthday.value
-        if record and record.birthday
-        else "Contact and birthday not found."
-    )
+			
+							 
+    return (record.birthday.value if record and record.birthday
+            else Color.RED + "Contact and birthday not found.\n" + Color.END)
+	 
 
 
 @input_error
@@ -101,26 +140,28 @@ def add_address(args, book):
     if record:
         address_str = " ".join(address)
         record.add_address(Address(address_str))
-        return "Address added."
+        return Color.GREEN + "Address added.\n" + Color.END
     else:
-        return "Contact not found."
+        return Color.RED + "Contact not found.\n" + Color.END
 
 
 @input_error
 def show_address(args, book):
     name = args[0]
     record = book.find(name)
-    return str(record.address) if record and record.address else "Address not found."
+    return (str(record.address) if record and record.address
+            else Color.RED + "Address not found.\n" + Color.END)
 
 
 @input_error
-def change_address(book, name, new_address):
+def change_address(args, book):
+    name, new_address = args
     record = book.find(name)
     if record:
         record.edit_address(new_address)
-        return "Address updated."
+        return Color.GREEN + "Address updated.\n" + Color.END
     else:
-        return "Contact not found."
+        return Color.RED + "Contact not found.\n" + Color.END
 
 
 @input_error
@@ -129,9 +170,9 @@ def add_email(args, book):
     record = book.find(name)
     if record:
         record.add_email(email)
-        return "Email added."
+        return Color.GREEN + "Email added.\n" + Color.END
     else:
-        return "Contact not found."
+        return Color.RED + "Contact not found.\n" + Color.END
 
 
 @input_error
@@ -140,9 +181,9 @@ def change_email(args, book):
     record = book.find(name)
     if record:
         record.edit_email(new_email)
-        return "Email updated."
+        return Color.GREEN + "Email updated.\n" + Color.END
     else:
-        return "Contact not found."
+        return Color.RED + "Contact not found.\n" + Color.END
 
 
 @input_error
@@ -150,16 +191,17 @@ def show_email(args, book):
     name = args[0]
     record = book.find(name)
     if record:
-        return str(record.email.value) if record.email else "Email not found."
+        return (str(record.email.value) if record.email
+                else Color.RED + "Email not found.\n" + Color.END)
     else:
-        return "Contact not found."
+        return Color.RED + "Contact not found.\n" + Color.END
 
 
 @input_error
 def find_contact_by_email(args, book):
     email = args[0]
     record = book.find_by_email(email)
-    return record.name if record else "Contact not found."
+    return record.name if record else Color.RED + "Contact not found.\n" + Color.END
 
 
 @input_error
@@ -168,9 +210,9 @@ def add_note(args, book):
     record = book.find(name)
     if record:
         record.add_note(note)
-        return "Note added."
+        return Color.GREEN + "Note added.\n" + Color.END
     else:
-        return "Contact not found."
+        return Color.RED + "Contact not found.\n" + Color.END
 
 
 @input_error
@@ -180,7 +222,7 @@ def edit_note_by_id(args, book):
     if record:
         return record.edit_note_by_id(note_id, new_content)
     else:
-        return "Contact not found."
+        return Color.RED + "Contact not found.\n" + Color.END
 
 
 @input_error
@@ -190,7 +232,7 @@ def delete_note_by_id(args, book):
     if record:
         return record.delete_note_by_id(note_id)
     else:
-        return "Contact not found."
+        return Color.RED + "Contact not found.\n" + Color.END
 
 
 @input_error
@@ -200,14 +242,14 @@ def find_note_by_content(args, book):
     if record:
         return record.find_note_by_content(search_content)
     else:
-        return "Contact not found."
+        return Color.RED + "Contact not found.\n" + Color.END
 
 
 @input_error
 def show_all_notes(args, book):
     name = args[0]
     record = book.find(name)
-    return record.notes if record else "Contact not found."
+    return record.notes if record else Color.RED + "Contact not found.\n" + Color.END
 
 
 @input_error
@@ -217,7 +259,7 @@ def add_tag_to_note(args, book):
     if record:
         return record.add_tag_to_note_by_id(note_id, tags)
     else:
-        return "Contact not found."
+        return Color.RED + "Contact not found.\n" + Color.END
 
 
 @input_error
@@ -227,7 +269,7 @@ def delete_tag_from_note(args, book):
     if record:
         return record.remove_tag_from_note_by_id(note_id, tag)
     else:
-        return "Contact not found."
+        return Color.RED + "Contact not found.\n" + Color.END
 
 
 def find_notes_by_tags(args, book):
@@ -236,9 +278,9 @@ def find_notes_by_tags(args, book):
     if record:
         return record.find_notes_by_tags(tags)
     else:
-        return "Contact not found."
+        return Color.RED + "Contact not found.\n" + Color.END
 
-
+					
 def birthdays(book):
     return book.get_birthdays_per_week()
 
@@ -256,7 +298,7 @@ def main():
         "edit-address", "show-address", "add-email", "edit-email", "show-email", "find-email",
         "add-birthday", "show-birthday", "birthdays", "add-note", "edit-note", "delete-note",
         "find-note", "show-all-notes", "add-tag", "delete-tag", "find-note-by-tags", "close",
-        "exit"
+        "exit", "help"
     ]
 
     completer = Autocompleter(commands)
@@ -265,7 +307,7 @@ def main():
     readline.parse_and_bind('tab: complete')
 
     book = AddressBook()
-    print("Welcome to the assistant bot!")
+    print("Welcome to the address book application!")
     book.from_json(os.getcwd() + "/src/book.json")
 
     try:
@@ -274,9 +316,11 @@ def main():
             command, args = parse_input(user_input)
 
             if command in ["close", "exit"]:
-                print("Good bye!")
+                print(Color.YELLOW + "Goodbye!\n" + Color.END)
                 book.to_json(os.getcwd() + "/src/book.json")
                 break
+            elif command == "help":
+                print(help_commands())
             elif command == "hello":
                 print("How can I help you?")
             elif command == "add":
@@ -326,9 +370,9 @@ def main():
             elif command == "find-note-by-tags":
                 print(find_notes_by_tags(args, book))
             else:
-                print("Invalid command.")
+                print(Color.RED + "Invalid command.\n" + Color.END)
     except KeyboardInterrupt:
-        print("Good bye!")
+        print(Color.YELLOW + "Goodbye!\n" + Color.END)
         book.to_json(os.getcwd() + "/src/book.json")
 
 if __name__ == "__main__":
