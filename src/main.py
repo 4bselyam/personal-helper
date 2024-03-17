@@ -1,19 +1,20 @@
-
 from datetime import datetime, timedelta
 from classes import AddressBook, Record, Address, Email
 from cli import Autocompleter
 import readline
 import os
 
+
 # Color formatting for better user experience
 class Color:
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-    END = '\033[0m'
-    RED = '\033[91m'
-    GREEN = '\033[92m'
-    YELLOW = '\033[93m'
-    BLUE = '\033[94m'
+    BOLD = "\033[1m"
+    UNDERLINE = "\033[4m"
+    END = "\033[0m"
+    RED = "\033[91m"
+    GREEN = "\033[92m"
+    YELLOW = "\033[93m"
+    BLUE = "\033[94m"
+
 
 def input_error(func):
     def inner(*args, **kwargs):
@@ -48,33 +49,89 @@ def parse_input(user_input):
 
 
 def help_commands():
-    return (Color.BOLD + "Available commands:\n" + Color.END +
-            "hello" + " - " + "Display a welcome message.\n" +
-            "add <name> <phone>" + " - " + "Add a new contact with a phone number.\n" +
-            "change <name> <phone>" + " - " + "Change the phone number of an existing contact.\n" +
-            "phone <name>" + " - " + "Show the phone number of a contact.\n" +
-            "find-phone <phone>" + " - " + "Find a contact by phone number.\n" +
-            "all" + " - " + "Show all contacts.\n" +
-            "add-address <name> <address>" + " - " + "Add an address to a contact.\n" +
-            "edit-address <name> <new_address>" + " - " + "Edit the address of a contact.\n" +
-            "show-address <name>" + " - " + "Show the address of a contact.\n" +
-            "add-email <name> <email>" + " - " + "Add an email to a contact.\n" +
-            "edit-email <name> <new_email>" + " - " + "Edit the email of a contact.\n" +
-            "show-email <name>" + " - " + "Show the email of a contact.\n" +
-            "find-email <email>" + " - " + "Find a contact by email.\n" +
-            "add-birthday <name> <birthday>" + " - " + "Add a birthday to a contact.\n" +
-            "show-birthday <name>" + " - " + "Show the birthday of a contact.\n" +
-            "birthdays" + " - " + "Show upcoming birthdays.\n" +
-            "add-note <name> <note>" + " - " + "Add a note to a contact.\n" +
-            "edit-note <name> <note_id> <new_content>" + " - " + "Edit a note of a contact by ID.\n" +
-            "delete-note <name> <note_id>" + " - " + "Delete a note of a contact by ID.\n" +
-            "find-note <name> <search_content>" + " - " + "Find a note of a contact by content.\n" +
-            "show-all-notes <name>" + " - " + "Show all notes of a contact.\n" +
-            "add-tag <name> <note_id> <tags>" + " - " + "Add tags to a note of a contact.\n" +
-            "delete-tag <name> <note_id> <tag>" + " - " + "Delete a tag from a note of a contact.\n" +
-            "find-note-by-tags <name> <tags>" + " - " + "Find notes of a contact by tags.\n" +
-            "close/exit" + " - " + "Close the application.\n" +
-            Color.BOLD + "Note: All commands are case insensitive.\n" + Color.END)
+    return (
+        Color.BOLD
+        + "Available commands:\n"
+        + Color.END
+        + "hello"
+        + " - "
+        + "Display a welcome message.\n"
+        + "add <name> <phone>"
+        + " - "
+        + "Add a new contact with a phone number.\n"
+        + "change <name> <phone>"
+        + " - "
+        + "Change the phone number of an existing contact.\n"
+        + "phone <name>"
+        + " - "
+        + "Show the phone number of a contact.\n"
+        + "find-phone <phone>"
+        + " - "
+        + "Find a contact by phone number.\n"
+        + "all"
+        + " - "
+        + "Show all contacts.\n"
+        + "add-address <name> <address>"
+        + " - "
+        + "Add an address to a contact.\n"
+        + "edit-address <name> <new_address>"
+        + " - "
+        + "Edit the address of a contact.\n"
+        + "show-address <name>"
+        + " - "
+        + "Show the address of a contact.\n"
+        + "add-email <name> <email>"
+        + " - "
+        + "Add an email to a contact.\n"
+        + "edit-email <name> <new_email>"
+        + " - "
+        + "Edit the email of a contact.\n"
+        + "show-email <name>"
+        + " - "
+        + "Show the email of a contact.\n"
+        + "find-email <email>"
+        + " - "
+        + "Find a contact by email.\n"
+        + "add-birthday <name> <birthday>"
+        + " - "
+        + "Add a birthday to a contact.\n"
+        + "show-birthday <name>"
+        + " - "
+        + "Show the birthday of a contact.\n"
+        + "birthdays"
+        + " - "
+        + "Show upcoming birthdays.\n"
+        + "add-note <name> <note>"
+        + " - "
+        + "Add a note to a contact.\n"
+        + "edit-note <name> <note_id> <new_content>"
+        + " - "
+        + "Edit a note of a contact by ID.\n"
+        + "delete-note <name> <note_id>"
+        + " - "
+        + "Delete a note of a contact by ID.\n"
+        + "find-note <name> <search_content>"
+        + " - "
+        + "Find a note of a contact by content.\n"
+        + "show-all-notes <name>"
+        + " - "
+        + "Show all notes of a contact.\n"
+        + "add-tag <name> <note_id> <tags>"
+        + " - "
+        + "Add tags to a note of a contact.\n"
+        + "delete-tag <name> <note_id> <tag>"
+        + " - "
+        + "Delete a tag from a note of a contact.\n"
+        + "find-note-by-tags <name> <tags>"
+        + " - "
+        + "Find notes of a contact by tags.\n"
+        + "close/exit"
+        + " - "
+        + "Close the application.\n"
+        + Color.BOLD
+        + "Note: All commands are case insensitive.\n"
+        + Color.END
+    )
 
 
 @input_error
@@ -101,7 +158,9 @@ def change_contact(args, book):
 def show_phone(args, book):
     name = args[0]
     record = book.find(name)
-    return record.phones[0] if record else Color.RED + "Contact not found.\n" + Color.END
+    return (
+        record.phones[0] if record else Color.RED + "Contact not found.\n" + Color.END
+    )
 
 
 @input_error
@@ -126,11 +185,12 @@ def add_birthday(args, book):
 def show_birthday(args, book):
     name = args[0]
     record = book.find(name)
-			
-							 
-    return (record.birthday.value if record and record.birthday
-            else Color.RED + "Contact and birthday not found.\n" + Color.END)
-	 
+
+    return (
+        record.birthday.value
+        if record and record.birthday
+        else Color.RED + "Contact and birthday not found.\n" + Color.END
+    )
 
 
 @input_error
@@ -149,13 +209,17 @@ def add_address(args, book):
 def show_address(args, book):
     name = args[0]
     record = book.find(name)
-    return (str(record.address) if record and record.address
-            else Color.RED + "Address not found.\n" + Color.END)
+    return (
+        str(record.address)
+        if record and record.address
+        else Color.RED + "Address not found.\n" + Color.END
+    )
 
 
 @input_error
 def change_address(args, book):
-    name, new_address = args
+    name, *new_address = args
+    print(name)
     record = book.find(name)
     if record:
         record.edit_address(new_address)
@@ -191,8 +255,11 @@ def show_email(args, book):
     name = args[0]
     record = book.find(name)
     if record:
-        return (str(record.email.value) if record.email
-                else Color.RED + "Email not found.\n" + Color.END)
+        return (
+            str(record.email.value)
+            if record.email
+            else Color.RED + "Email not found.\n" + Color.END
+        )
     else:
         return Color.RED + "Contact not found.\n" + Color.END
 
@@ -280,7 +347,7 @@ def find_notes_by_tags(args, book):
     else:
         return Color.RED + "Contact not found.\n" + Color.END
 
-					
+
 def birthdays(book):
     return book.get_birthdays_per_week()
 
@@ -294,17 +361,39 @@ def show_all(book):
 
 def main():
     commands = [
-        "hello", "add", "change", "phone", "find-phone", "all", "add-address",
-        "edit-address", "show-address", "add-email", "edit-email", "show-email", "find-email",
-        "add-birthday", "show-birthday", "birthdays", "add-note", "edit-note", "delete-note",
-        "find-note", "show-all-notes", "add-tag", "delete-tag", "find-note-by-tags", "close",
-        "exit", "help"
+        "hello",
+        "add",
+        "change",
+        "phone",
+        "find-phone",
+        "all",
+        "add-address",
+        "edit-address",
+        "show-address",
+        "add-email",
+        "edit-email",
+        "show-email",
+        "find-email",
+        "add-birthday",
+        "show-birthday",
+        "birthdays",
+        "add-note",
+        "edit-note",
+        "delete-note",
+        "find-note",
+        "show-all-notes",
+        "add-tag",
+        "delete-tag",
+        "find-note-by-tags",
+        "close",
+        "exit",
+        "help",
     ]
 
     completer = Autocompleter(commands)
-    readline.set_completer_delims(' \t\n;')
+    readline.set_completer_delims(" \t\n;")
     readline.set_completer(completer.complete)
-    readline.parse_and_bind('tab: complete')
+    readline.parse_and_bind("tab: complete")
 
     book = AddressBook()
     print("Welcome to the address book application!")
@@ -335,8 +424,8 @@ def main():
                 print(show_all(book))
             elif command == "add-address":
                 print(add_address(args, book))
-            elif command == "edit-address" and len(args) == 2:
-                print(change_address(book, *args))
+            elif command == "edit-address":
+                print(change_address(args, book))
             elif command == "show-address" and len(args) == 1:
                 print(show_address(args, book))
             elif command == "add-email":
@@ -374,6 +463,7 @@ def main():
     except KeyboardInterrupt:
         print(Color.YELLOW + "Goodbye!\n" + Color.END)
         book.to_json(os.getcwd() + "/src/book.json")
+
 
 if __name__ == "__main__":
     main()
